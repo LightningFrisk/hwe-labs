@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import current_timestamp
 
 ### Setup: Create a SparkSession
 spark = SparkSession.builder \
@@ -26,11 +27,14 @@ reviews_data.createOrReplaceTempView("reviews")
 print("\n\n--- Question 3---\n\n")
 
 # reviews_data_with_timestamp = spark.sql(
-#     "ALTER TABLE reviews ADD COLUMN review_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"
+#     "ALTER TABLE reviews ADD COLUMN review_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
 # ) # this throws an error, not sure why?
 # reviews_data_with_timestamp.show(1) 
 
+## TODO Can I do this with SQL like above? 
 
+reviews_data_with_timestamp = reviews_data.withColumn("current_timestamp", current_timestamp()) # https://www.educative.io/answers/how-to-add-a-current-timestamp-column-to-pyspark-dataframe
+reviews_data_with_timestamp.show(1) 
 
 # Question 4: How many records are in the reviews dataframe? 
 
@@ -43,9 +47,9 @@ total_reviews.show() #this works
 # Question 5: Print the first 5 rows of the dataframe. 
 # Some of the columns are long - print the entire record, regardless of length.
 
-# reviews_data.show(n=5, truncate=False) #this should work, but this is from chatgpt
 
 print("\n\n--- Question 5---\n\n")
+# reviews_data.show(n=5, truncate=False) #this should work
 
 first_five_reviews = spark.sql("SELECT * FROM reviews LIMIT 5") #this also works
 first_five_reviews.show(truncate=False)
@@ -58,7 +62,7 @@ print("\n\n--- Question 6---\n\n")
 # print(reviews_data.schema)
 # value_of_product = spark.sql("SELECT product_category, COUNT(*) FROM reviews GROUP BY product_category")
 
-# TODO Ask how to do this with SQL? I had to use chatgpt which put me onto the correctpyspark functions
+# TODO Ask how to do this with SQL?
 
 product_categories = reviews_data.select("product_category")
 product_categories.show(50)
@@ -125,6 +129,8 @@ date_of_purchase.show(1)
 ##Use overwrite mode.
 
 print("\n\n--- Question 11---\n\n")
+
+
 
 ### Teardown
 # Stop the SparkSession
