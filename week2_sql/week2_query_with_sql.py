@@ -1,3 +1,4 @@
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp
 
@@ -128,9 +129,12 @@ date_of_purchase.show(1)
 ##Feel free to pick any directory on your computer.
 ##Use overwrite mode.
 
+# https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrameWriter.json.html#pyspark.sql.DataFrameWriter.json
+
 print("\n\n--- Question 11---\n\n")
-
-
+dest_folder_path: str = os.path.abspath("week2_sql/question11_output")
+reviews_data_with_timestamp.write.json(dest_folder_path, mode="overwrite")
+print("We got past this, it should've worked")
 
 ### Teardown
 # Stop the SparkSession
