@@ -105,6 +105,7 @@ five_star_reviews.show(1)
 print("\n\n--- Question 9---\n\n")
 
 # df.select(df.name, (df.age + 10).alias('age')).show() - https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.select.html#pyspark.sql.DataFrame.select
+# https://sparkbyexamples.com/pyspark/pyspark-cast-column-type/
 
 cast_to_int = reviews_data.select(
     reviews_data.star_rating.cast('int').alias('star_rating'),
@@ -134,7 +135,8 @@ date_of_purchase.show(1)
 print("\n\n--- Question 11---\n\n")
 dest_folder_path: str = os.path.abspath("week2_sql/question11_output")
 reviews_data_with_timestamp.write.json(dest_folder_path, mode="overwrite")
-print("We got past this, it should've worked")
+
+print("We got past the write function, check and see if it worked")
 
 ### Teardown
 # Stop the SparkSession
