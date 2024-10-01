@@ -27,15 +27,16 @@ reviews_data.createOrReplaceTempView("reviews")
 
 print("\n\n--- Question 3---\n\n")
 
-# reviews_data_with_timestamp = spark.sql(
-#     "ALTER TABLE reviews ADD COLUMN review_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP"
-# ) # this throws an error, not sure why?
-# reviews_data_with_timestamp.show(1) 
-
-## TODO Can I do this with SQL like above? 
-
-reviews_data_with_timestamp = reviews_data.withColumn("current_timestamp", current_timestamp()) # https://www.educative.io/answers/how-to-add-a-current-timestamp-column-to-pyspark-dataframe
+reviews_data_with_timestamp = spark.sql(
+    "SELECT reviews.*, current_timestamp() AS review_timestamp from reviews"
+) # this throws an error, not sure why?
 reviews_data_with_timestamp.show(1) 
+
+
+## Can I do this with SQL like above? 
+
+# reviews_data_with_timestamp = reviews_data.withColumn("review_timestamp", current_timestamp()) # https://www.educative.io/answers/how-to-add-a-current-timestamp-column-to-pyspark-dataframe
+# reviews_data_with_timestamp.show(1) 
 
 # Question 4: How many records are in the reviews dataframe? 
 
@@ -43,6 +44,9 @@ print("\n\n--- Question 4---\n\n")
 total_reviews = spark.sql("SELECT COUNT(*) FROM reviews")
 
 total_reviews.show() #this works
+
+# total_reviews = reviews_data.count()
+# print(total_reviews)
 
 
 # Question 5: Print the first 5 rows of the dataframe. 
@@ -60,42 +64,46 @@ first_five_reviews.show(truncate=False)
 # Which value appears to be the most common?
 
 print("\n\n--- Question 6---\n\n")
+
 # print(reviews_data.schema)
-# value_of_product = spark.sql("SELECT product_category, COUNT(*) FROM reviews GROUP BY product_category")
+value_of_product = spark.sql("SELECT DISTINCT product_category FROM reviews LIMIT 50")
+value_of_product.show(50)
 
-# TODO Ask how to do this with SQL?
+# product_categories = reviews_data.select("product_category")
+# product_categories.show(50)
 
-product_categories = reviews_data.select("product_category")
-product_categories.show(50)
+# most_common_category = (
+#     product_categories.groupBy("product_category")
+#     .count()
+#     .orderBy("count", ascending=False)
+# )
 
-# Count occurrences of each product category and order by count descending
-most_common_category = (
-    product_categories.groupBy("product_category")
-    .count()
-    .orderBy("count", ascending=False)
-)
-
-# Show the most common product category
-most_common_category.show(1)
+# # Show the most common product category
+# most_common_category.show(1)
 
 # Question 7: Find the most helpful review in the dataframe - the one with the highest number of helpful votes.
 # What is the product title for that review? How many helpful votes did it have?
 
 print("\n\n--- Question 7---\n\n")
 
-most_helpful_review = reviews_data.sort(reviews_data.helpful_votes.desc())
-most_helpful_review.show(1)
+most_helpful_votes = spark.sql("SELECT * FROM reviews ORDER BY helpful_votes DESC")
+most_helpful_votes.show(1)
+
+# most_helpful_review = reviews_data.sort(reviews_data.helpful_votes.desc())
+# most_helpful_review.show(1)
 
 # Question 8: How many reviews exist in the dataframe with a 5 star rating?
 
 print("\n\n--- Question 8---\n\n")
 
-five_star_reviews = (
-    reviews_data.groupBy("star_rating")
-    .count()
-    .orderBy("count", ascending=False)
-)
-five_star_reviews.show(1)
+five_star_reviews = spark.sql("SELECT COUNT (*) FROM reviews WHERE star_rating=5")
+
+# five_star_reviews = (
+#     reviews_data.groupBy("star_rating")
+#     .count()
+#     .orderBy("count", ascending=False)
+# )
+# five_star_reviews.show(1)
 
 # Question 9: Currently every field in the data file is interpreted as a string, but there are 3 that should really be numbers.
 #those are star_rating, helpful_votes, and total_votes
@@ -107,11 +115,13 @@ print("\n\n--- Question 9---\n\n")
 # df.select(df.name, (df.age + 10).alias('age')).show() - https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.select.html#pyspark.sql.DataFrame.select
 # https://sparkbyexamples.com/pyspark/pyspark-cast-column-type/
 
-cast_to_int = reviews_data.select(
-    reviews_data.star_rating.cast('int').alias('star_rating'),
-    reviews_data.helpful_votes.cast('int').alias('helpful_votes'),
-    reviews_data.total_votes.cast('int').alias('total_votes')
-)
+cast_to_int = spark.sql("SELECT INT(star_rating), INT(helpful_votes), CAST(helpful_votes AS INT) FROM reviews")
+
+# cast_to_int = reviews_data.select(
+#     reviews_data.star_rating.cast('int').alias('star_rating'),
+#     reviews_data.helpful_votes.cast('int').alias('helpful_votes'),
+#     reviews_data.total_votes.cast('int').alias('total_votes')
+# )
 cast_to_int.show(10)
 
 # Question 10: Find the date with the most purchases.
@@ -119,11 +129,13 @@ cast_to_int.show(10)
 
 print("\n\n--- Question 10---\n\n")
 
-date_of_purchase = (
-    reviews_data.groupBy("purchase_date")
-    .count()
-    .orderBy("count", ascending=False)
-)
+date_of_purchase = spark.sql("SELECT CAST(purchase_date AS DATE) AS purchase_date, COUNT(*) AS COUNT FROM reviews GROUP BY purchase_date ORDER BY count DESC")
+
+# date_of_purchase = (
+#     reviews_data.groupBy("purchase_date")
+#     .count()
+#     .orderBy("count", ascending=False)
+# )
 date_of_purchase.show(1)
 
 ##TODO Question 11: Write the dataframe from Question 3 to your drive in JSON format.
