@@ -138,7 +138,7 @@ date_of_purchase = spark.sql("SELECT CAST(purchase_date AS DATE) AS purchase_dat
 # )
 date_of_purchase.show(1)
 
-##TODO Question 11: Write the dataframe from Question 3 to your drive in JSON format.
+##Question 11: Write the dataframe from Question 3 to your drive in JSON format.
 ##Feel free to pick any directory on your computer.
 ##Use overwrite mode.
 
