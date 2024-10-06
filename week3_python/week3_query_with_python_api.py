@@ -7,6 +7,7 @@ from pyspark.sql.functions import current_timestamp
 from dotenv import load_dotenv
 load_dotenv()
 
+handle="ccook"
 aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
@@ -34,26 +35,49 @@ logger.LogManager.getLogger("org.apache.spark.SparkEnv"). setLevel( logger.Level
 #Question 1: Read the tab separated file named "resources/reviews.tsv.gz" into a dataframe.
 #You will use the "reviews" dataframe defined here to answer all the questions below...
 
+print("\n\n--- Question 1---\n\n")
+
+reviews_data = spark.read.csv("resources/reviews.tsv.gz", sep="\t", header=True)
+
 #Question 2: Display the schema of the dataframe.
+
+print("\n\n--- Question 2---\n\n")
+
+reviews_data.printSchema()
 
 #Question 3: How many records are in the dataframe? 
 #Store this number in a variable named "reviews_count".
 
+print("\n\n--- Question 3---\n\n")
+
+reviews_count = reviews_data.count()
+print(reviews_count)
+
 #Question 4: Print the first 5 rows of the dataframe. 
 #Some of the columns are long - print the entire record, regardless of length.
+
+print("\n\n--- Question 4---\n\n")
 
 #Question 5: Create a new dataframe based on "reviews" with exactly 1 column: the value of the product category field.
 #Look at the first 50 rows of that dataframe. 
 #Which value appears to be the most common?
 
+print("\n\n--- Question 5---\n\n")
+
 #Question 6: Find the most helpful review in the dataframe - the one with the highest number of helpful votes.
 #What is the product title for that review? How many helpful votes did it have?
 
+print("\n\n--- Question 6---\n\n")
+
 #Question 7: How many reviews have a 5 star rating?
+
+print("\n\n--- Question 7---\n\n")
 
 #Question 8: Currently every field in the data file is interpreted as a string, but there are 3 that should really be numbers.
 #Create a new dataframe with just those 3 columns, except cast them as "int"s.
 #Look at 10 rows from this dataframe.
+
+print("\n\n--- Question 8---\n\n")
 
 #Question 8: Find the date with the most purchases.
 #Print the date and total count of the date with the most purchases
@@ -61,14 +85,18 @@ logger.LogManager.getLogger("org.apache.spark.SparkEnv"). setLevel( logger.Level
 #Question 9: Add a column to the dataframe named "review_timestamp", representing the current time on your computer. 
 #Hint: Check the documentation for a function that can help: https://spark.apache.org/docs/3.1.3/api/python/reference/pyspark.sql.html#functions
 #Print the schema and inspect a few rows of data to make sure the data is correctly populated.
+print("\n\n--- Question 9---\n\n")
 
 #Question 10: Write the dataframe with load timestamp to s3a://hwe-$CLASS/$HANDLE/bronze/reviews_static in Parquet format.
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
+print("\n\n--- Question 10---\n\n")
 
 #Question 11: Read the tab separated file named "resources/customers.tsv.gz" into a dataframe
 #Write to S3 under s3a://hwe-$CLASS/$HANDLE/bronze/customers
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
 #There are no questions to answer about this data set right now, but you will use it in a later lab...
+print("\n\n--- Question 11---\n\n")
 
 # Stop the SparkSession
+print("\n \n --- End of Program --- \n \n")
 spark.stop()
