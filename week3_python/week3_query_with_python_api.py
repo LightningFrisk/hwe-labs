@@ -58,20 +58,44 @@ print(reviews_count)
 
 print("\n\n--- Question 4---\n\n")
 
+reviews_data.show(n=5, truncate=False)
+
 #Question 5: Create a new dataframe based on "reviews" with exactly 1 column: the value of the product category field.
 #Look at the first 50 rows of that dataframe. 
 #Which value appears to be the most common?
 
 print("\n\n--- Question 5---\n\n")
 
+product_categories = reviews_data.select("product_category")
+product_categories.show(50)
+
+most_common_category = (
+    product_categories.groupBy("product_category")
+    .count()
+    .orderBy("count", ascending=False)
+)
+
+# Show the most common product category
+most_common_category.show(1)
+
 #Question 6: Find the most helpful review in the dataframe - the one with the highest number of helpful votes.
 #What is the product title for that review? How many helpful votes did it have?
 
 print("\n\n--- Question 6---\n\n")
 
+most_helpful_review = reviews_data.sort(reviews_data.helpful_votes.desc())
+most_helpful_review.show(1)
+
 #Question 7: How many reviews have a 5 star rating?
 
 print("\n\n--- Question 7---\n\n")
+
+five_star_reviews = (
+    reviews_data.groupBy("star_rating")
+    .count()
+    .orderBy("count", ascending=False)
+)
+five_star_reviews.show(1)
 
 #Question 8: Currently every field in the data file is interpreted as a string, but there are 3 that should really be numbers.
 #Create a new dataframe with just those 3 columns, except cast them as "int"s.
@@ -79,17 +103,38 @@ print("\n\n--- Question 7---\n\n")
 
 print("\n\n--- Question 8---\n\n")
 
+cast_to_int = reviews_data.select(
+    reviews_data.star_rating.cast('int').alias('star_rating'),
+    reviews_data.helpful_votes.cast('int').alias('helpful_votes'),
+    reviews_data.total_votes.cast('int').alias('total_votes')
+)
+cast_to_int.show(10)
+
 #Question 8: Find the date with the most purchases.
 #Print the date and total count of the date with the most purchases
+
+print("\n\n--- Question 8 #2---\n\n")
+
+date_of_purchase = (
+    reviews_data.groupBy("purchase_date")
+    .count()
+    .orderBy("count", ascending=False)
+)
+date_of_purchase.show(1)
 
 #Question 9: Add a column to the dataframe named "review_timestamp", representing the current time on your computer. 
 #Hint: Check the documentation for a function that can help: https://spark.apache.org/docs/3.1.3/api/python/reference/pyspark.sql.html#functions
 #Print the schema and inspect a few rows of data to make sure the data is correctly populated.
 print("\n\n--- Question 9---\n\n")
 
+reviews_timestamp = reviews_data.withColumn("review_timestamp", current_timestamp()) # https://www.educative.io/answers/how-to-add-a-current-timestamp-column-to-pyspark-dataframe
+reviews_timestamp.show(5) 
+
+
 #Question 10: Write the dataframe with load timestamp to s3a://hwe-$CLASS/$HANDLE/bronze/reviews_static in Parquet format.
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
 print("\n\n--- Question 10---\n\n")
+
 
 #Question 11: Read the tab separated file named "resources/customers.tsv.gz" into a dataframe
 #Write to S3 under s3a://hwe-$CLASS/$HANDLE/bronze/customers
