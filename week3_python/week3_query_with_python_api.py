@@ -135,12 +135,18 @@ reviews_timestamp.show(5)
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
 print("\n\n--- Question 10---\n\n")
 
+filepath = "s3a://hwe-fall-2024/ccook/bronze/reviews_static"
+reviews_timestamp.write.parquet(filepath, mode="overwrite")
 
 #Question 11: Read the tab separated file named "resources/customers.tsv.gz" into a dataframe
 #Write to S3 under s3a://hwe-$CLASS/$HANDLE/bronze/customers
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
 #There are no questions to answer about this data set right now, but you will use it in a later lab...
 print("\n\n--- Question 11---\n\n")
+
+reviews_data = spark.read.csv("resources/customers.tsv.gz", sep="\t", header=True)
+filepath2 = "s3a://hwe-fall-2024/ccook/bronze/customers"
+reviews_timestamp.write.parquet(filepath2, mode="overwrite")
 
 # Stop the SparkSession
 print("\n \n --- End of Program --- \n \n")
