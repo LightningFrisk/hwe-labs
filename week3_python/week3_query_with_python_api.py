@@ -1,4 +1,5 @@
 import os
+import boto3
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import desc, col
 from pyspark.sql.functions import current_timestamp
@@ -10,6 +11,12 @@ load_dotenv()
 handle="ccook"
 aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key
+)
 
 # Create a SparkSession
 spark = SparkSession.builder \
@@ -135,6 +142,13 @@ print("\n\n--- Question 10---\n\n")
 filepath = "s3a://hwe-fall-2024/ccook/bronze/reviews_static"
 reviews_timestamp.write.parquet(filepath, mode="overwrite")
 
+# try:
+    # response = s3.get_object(Bucket="hwe-fall-2024", Key="bronze/reviews_static") # look into s3 api for this, use this instead of get object, prefix and check if empty - https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/list_objects_v2.html
+#     content = response['Body'].read().decode('utf-8')
+#     print(content)
+# except Exception as e:
+#     print(f"Error: {str(e)}")
+
 #Question 11: Read the tab separated file named "resources/customers.tsv.gz" into a dataframe
 #Write to S3 under s3a://hwe-$CLASS/$HANDLE/bronze/customers
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
@@ -144,6 +158,14 @@ print("\n\n--- Question 11---\n\n")
 reviews_data = spark.read.csv("resources/customers.tsv.gz", sep="\t", header=True)
 filepath2 = "s3a://hwe-fall-2024/ccook/bronze/customers"
 reviews_timestamp.write.parquet(filepath2, mode="overwrite")
+
+# try:
+#     response = s3.get_object(Bucket="hwe-fall-2024", Key="bronze/customers")
+#     content = response['Body'].read().decode('utf-8')
+#     print(content)
+# except Exception as e:
+#     print(f"Error: {str(e)}")
+
 
 # Stop the SparkSession
 print("\n \n --- End of Program --- \n \n")
