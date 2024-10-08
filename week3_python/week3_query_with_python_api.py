@@ -74,8 +74,6 @@ most_common_category = (
     .count()
     .orderBy("count", ascending=False)
 )
-
-# Show the most common product category
 most_common_category.show(1)
 
 #Question 6: Find the most helpful review in the dataframe - the one with the highest number of helpful votes.
@@ -104,9 +102,9 @@ five_star_reviews.show(1)
 print("\n\n--- Question 8---\n\n")
 
 cast_to_int = reviews_data.select(
-    reviews_data.star_rating.cast('int').alias('star_rating'),
-    reviews_data.helpful_votes.cast('int').alias('helpful_votes'),
-    reviews_data.total_votes.cast('int').alias('total_votes')
+    reviews_data.star_rating.cast('int'),
+    reviews_data.helpful_votes.cast('int'),
+    reviews_data.total_votes.cast('int')
 )
 cast_to_int.show(10)
 
@@ -128,8 +126,7 @@ date_of_purchase.show(1)
 print("\n\n--- Question 9---\n\n")
 
 reviews_timestamp = reviews_data.withColumn("review_timestamp", current_timestamp()) # https://www.educative.io/answers/how-to-add-a-current-timestamp-column-to-pyspark-dataframe
-reviews_timestamp.show(5) 
-
+reviews_timestamp.show(5)
 
 #Question 10: Write the dataframe with load timestamp to s3a://hwe-$CLASS/$HANDLE/bronze/reviews_static in Parquet format.
 #Make sure to write it using overwrite mode: append will keep appending duplicates, which will cause problems in later labs...
