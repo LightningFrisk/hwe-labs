@@ -1,6 +1,6 @@
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, current_timestamp
+from pyspark.sql.functions import current_timestamp, split, col
 
 # Load environment variables.
 from dotenv import load_dotenv
@@ -50,13 +50,41 @@ df = spark \
     .option("kafka.sasl.jaas.config", getScramAuthString(username, password)) \
     .load()
 
-# # Process the received data
+# Process the received data
+
+print("\n\n--- Begin Program --- \n\n")
+
+# Modify the `df` dataframe defined in the lab to do the following:
+#    * split the value of the Kafka message on tab characters, assigning a field name to each element using the `as` keyword
+
+df.printSchema()
+df = df.selectExpr("CAST(value AS STRING) as kafka_message")
+df = df.select(
+    split(col("kafka_message"), "\t").alias("split_message")
+)
+
+#    * append a column to the data named `review_timestamp` which is set to the current_timestamp
+
+
+
+#    * write that data as Parquet files to S3 under `s3a://hwe-$CLASS/$HANDLE/bronze/reviews` using append mode and a checkpoint location of `/tmp/kafka-checkpoint`
+   
+
+
+# Outside of this program, create a table on top of your S3 data in Athena, and run some queries against your data to validate it is coming across the way you expect. Some useful fields to validate could include:
+
+#    * product_title
+#    * star_rating
+#    * review_timestamp
+
+# GROUP BY and LIMIT are also useful here.
+
 # query = None
 
-# # Wait for the streaming query to finish
+# Wait for the streaming query to finish
 # query.awaitTermination()
 
 # Stop the SparkSession
 
-print("\n\n--- End of Program ---")
+print("\n\n--- End of Program ---\n\n")
 spark.stop()

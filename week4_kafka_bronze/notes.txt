@@ -1,0 +1,54 @@
+key
+value
+topic
+partition
+offset
+timestamp
+timestampType
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import current_timestamp, split, col
+
+# Initialize Spark session
+spark = SparkSession.builder \
+    .appName("Kafka to Parquet") \
+    .getOrCreate()
+
+# Read stream from Kafka
+df = spark \
+    .readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
+    .option("subscribe", kafka_topic) \
+    .option("startingOffsets", "earliest") \
+    .option("maxOffsetsPerTrigger", "1000") \
+    .option("kafka.security.protocol", "SASL_SSL") \
+    .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
+    .option("kafka.sasl.jaas.config", getScramAuthString(username, password)) \
+    .load()
+
+# Split the Kafka message on tab characters and assign field names
+df = df.selectExpr("CAST(value AS STRING) as kafka_message")
+
+# Split the message and extract fields
+df = df.select(
+    split(col("kafka_message"), "\t").alias("split_message")
+)
+
+df = df.select(
+    col("split_message").getItem(0).alias("product_title"),
+    col("split_message").getItem(1).alias("star_rating"),
+    col("split_message").getItem(2).alias("review_content"),
+    current_timestamp().alias("review_timestamp")
+)
+
+# Write the data as Parquet files to S3
+query = df.writeStream \
+    .format("parquet") \
+    .option("checkpointLocation", "/tmp/kafka-checkpoint") \
+    .outputMode("append") \
+    .option("path", "s3a://hwe-$CLASS/$HANDLE/bronze/reviews") \
+    .start()
+
+# Await termination of the stream
+query.awaitTermination()
