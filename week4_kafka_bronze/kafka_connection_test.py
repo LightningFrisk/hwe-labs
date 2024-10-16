@@ -20,14 +20,16 @@ password = os.environ.get("HWE_PASSWORD")
 topic = 'kafka-connection-test'
 
 # Create a KafkaConsumer instance
-consumer = KafkaConsumer(topic,
-                         bootstrap_servers=kafka_bootstrap_servers,
-                         auto_offset_reset='earliest',  # Read from the beginning of the topic
-                         security_protocol='SASL_SSL',
-                         sasl_mechanism='SCRAM-SHA-512',
-                         sasl_plain_username=username,
-                         sasl_plain_password=password
-                         )
+consumer = KafkaConsumer(
+                            topic,
+                            bootstrap_servers=kafka_bootstrap_servers,
+                            auto_offset_reset='earliest',  # Read from the beginning of the topic
+                            security_protocol='SASL_SSL',
+                            sasl_mechanism='SCRAM-SHA-512',
+                            sasl_plain_username=username,
+                            sasl_plain_password=password,
+                            ssl_cafile='C:\\Users\\bmxca\\.hwe_venv\\Lib\\site-packages\\certifi\\cacert.pem'
+                        )
 try:
     # Poll and read messages from the topic
     for message in consumer:
