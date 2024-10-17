@@ -58,18 +58,39 @@ print("\n\n--- Begin Program --- \n\n")
 #    * split the value of the Kafka message on tab characters, assigning a field name to each element using the `as` keyword
 
 df.printSchema()
-df = df.selectExpr("CAST(value AS STRING) as kafka_message")
-df = df.select(
-    split(col("kafka_message"), "\t").alias("split_message")
-)
-
+df = df.selectExpr("split(value, '\t')[0] AS marketplace"
+               ,"split(value, '\t')[1] AS customer_id"
+               ,"split(value, '\t')[2] AS review_id"
+               ,"split(value, '\t')[3] AS product_id"
+               ,"split(value, '\t')[4] AS product_parent"
+               ,"split(value, '\t')[5] AS product_title"
+               ,"split(value, '\t')[6] AS product_category"
+               ,"cast(split(value, '\t')[7] as int) AS star_rating"
+               ,"cast(split(value, '\t')[8] as int) AS helpful_votes"
+               ,"cast(split(value, '\t')[9] as int) AS total_votes"
+               ,"split(value, '\t')[10] AS vine"
+               ,"split(value, '\t')[11] AS verified_purchase"
+               ,"split(value, '\t')[12] AS review_headline"
+               ,"split(value, '\t')[13] AS review_body"
+               ,"split(value, '\t')[14] AS purchase_date") \
+                .withColumn("review_timestamp", current_timestamp())
+            
 #    * append a column to the data named `review_timestamp` which is set to the current_timestamp
 
 
 
 #    * write that data as Parquet files to S3 under `s3a://hwe-$CLASS/$HANDLE/bronze/reviews` using append mode and a checkpoint location of `/tmp/kafka-checkpoint`
    
+print("\n\n--- Data Frame Loaded ---\n\n")
 
+query = df.writeStream \
+    .outputMode("append") \
+    .format("parquet") \
+    .option("path", "s3a://hwe-fall-2024/ccook/bronze/reviews") \
+    .option("checkpointLocation", "/tmp/kafka-checkpoint") \
+    .start()
+
+print("\n\n--- Write Complete ---\n\n")
 
 # Outside of this program, create a table on top of your S3 data in Athena, and run some queries against your data to validate it is coming across the way you expect. Some useful fields to validate could include:
 
@@ -82,7 +103,7 @@ df = df.select(
 # query = None
 
 # Wait for the streaming query to finish
-# query.awaitTermination()
+query.awaitTermination()
 
 # Stop the SparkSession
 
