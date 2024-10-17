@@ -94,9 +94,23 @@ print("\n\n--- Write Complete ---\n\n")
 
 # Outside of this program, create a table on top of your S3 data in Athena, and run some queries against your data to validate it is coming across the way you expect. Some useful fields to validate could include:
 
-#    * product_title
-#    * star_rating
-#    * review_timestamp
+# CREATE EXTERNAL TABLE hwe.ccook_reviews (
+# markplace string,
+# customer_id string,
+# product_id string,
+# product_parent string,
+# product_title string,
+# product_category string,
+# star_rating int,
+# helpful_votes int,
+# total_votes int,
+# vine string,
+# verified_purchase string,
+# review_headline string,
+# review_body string,
+# purchase_date string)
+# stored as parquet
+# location 's3://hwe-fall-2024/ccook/bronze/reviews/'
 
 # GROUP BY and LIMIT are also useful here.
 

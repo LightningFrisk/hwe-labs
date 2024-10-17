@@ -65,7 +65,7 @@ df = df.select(
     split(col("kafka_message"), "\t").alias("split_message")
 )
 
-df = df.select(
+df = df.select(etpla
     col("split_message").getItem(0).alias("product_title"),
     col("split_message").getItem(1).alias("star_rating"),
     col("split_message").getItem(2).alias("review_content"),
