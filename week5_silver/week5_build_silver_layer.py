@@ -31,26 +31,6 @@ logger.LogManager.getLogger("org.apache.spark.SparkEnv"). setLevel( logger.Level
 
 # 1. Define a `bronze_schema` which describes the Parquet files under the bronze reviews directory on S3
 
-# Uses schema inference
-# spark.read.csv("path")
-
-# Uses a custom schema
-# custom_schema = …
-# spark.read.schema(custom_schema).csv("path")
-
-#  Manually define a schema that matches your data
-#     from pyspark.sql.types import StructType, StructField, StringType
-# player_schema = StructType([
-#    StructField("name", StringType, nullable=false)
-#   ,StructField("gender", StringType, nullable=false)
-#   ,StructField("state", StringType, nullable=false)])
-# players = spark.read.schema(player_schema).csv("path")
-
-# Can also nest struct fields together!
-# nested_schema = StructType([
-#   player_schema
-#  ,StructField("score", IntegerType, nullable=false)])
-
 bronze_schema = StructType([
    StructField("marketplace", StringType, nullable=false)
   ,StructField("customer_id", StringType, nullable=false) #could be int
@@ -68,35 +48,23 @@ bronze_schema = StructType([
   ,StructField("purchase_date", StringType, nullable=false) #could be date
   ])
 
-# 2. TODO Define a streaming dataframe using `readStream` on top of the bronze reviews directory on S3
-    # df = spark.readStream.parquet("path")
+# 2. Define a streaming dataframe using `readStream` on top of the bronze reviews directory on S3
+# 3. Register a virtual view on top of that dataframe
 
-    # df = spark \ This won't work, but gives framework on how to do this,but this is kafka so maybe too complicated, i think reading from s3 is just a url
-    #     .readStream \
-    #     .format("kafka") \
-    #     .option("kafka.bootstrap.servers", kafka_bootstrap_servers) \
-    #     .option("subscribe", kafka_topic) \
-    #     .option("startingOffsets", "earliest") \
-    #     .option("maxOffsetsPerTrigger", "1000") \
-    #     .option("kafka.security.protocol", "SASL_SSL") \
-    #     .option("kafka.sasl.mechanism", "SCRAM-SHA-512") \
-    #     .option("kafka.sasl.jaas.config", getScramAuthString(username, password)) \
-    #     .load()
+bronze_reviews = spark.readStream.schema(bronze_schema).parquet("s3://hwe-fall-2024/ccook/bronze/reviews/")
+bronze_reviews.createOrReplaceTempView("reviews")
 
-# 3. TODO Register a virtual view on top of that dataframe
+# 4. Define a non-streaming dataframe using `read` on top of the bronze customers directory on S3
+# 5. Register a virtual view on top of that dataframe
 
-bronze_reviews = None
+bronze_customers = spark.read.parquet("s3://hwe-fall-2024/ccook/bronze/customers/")
+bronze_customers.createOrReplaceTempView("customers")
 
-# TODO 4. Define a non-streaming dataframe using `read` on top of the bronze customers directory on S3
-# TODO 5. Register a virtual view on top of that dataframe
-
-bronze_customers = None
-
-# TODO 6. Define a `silver_data` dataframe by:
+# 6. TODO Define a `silver_data` dataframe by:
 #    * joining the review and customer data on their common key of `customer_id`
 #    * applying a business validation rule to prevent unverified reviews in the bronze layer from being loaded into the silver layer
 
-silver_data = None
+silver_data = None # I will need to do research to figure out where to even start here LOL
 
 # 7. Write that silver data to S3 under `s3a://hwe-$CLASS/$HANDLE/silver/reviews` using append mode, a checkpoint location of `/tmp/silver-checkpoint`, and a format of `parquet`
 
