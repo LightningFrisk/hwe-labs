@@ -29,7 +29,7 @@ logger = spark.sparkContext._jvm.org.apache.log4j
 logger.LogManager.getLogger("org.apache.spark.util.ShutdownHookManager"). setLevel( logger.Level.OFF )
 logger.LogManager.getLogger("org.apache.spark.SparkEnv"). setLevel( logger.Level.ERROR )
 
-print("\n\n--- Begin Program --- \n\n")
+print("\n--- Begin Program --- \n")
 
 # 1. Define a `bronze_schema` which describes the Parquet files under the bronze reviews directory on S3
 
@@ -59,7 +59,7 @@ print("\n--- Schema Defined --- \n")
 bronze_reviews = spark.readStream \
 .format("parquet") \
 .schema(bronze_schema) \
-.load("s3://hwe-fall-2024/ccook/bronze/reviews/")
+.load("s3a://hwe-fall-2024/ccook/bronze/reviews/")
 
 print("\n--- Reviews Loaded --- \n")
 
@@ -70,7 +70,7 @@ print("\n--- Reviews SQL View Loaded --- \n")
 # 4. Define a non-streaming dataframe using `read` on top of the bronze customers directory on S3
 # 5. Register a virtual view on top of that dataframe
 
-bronze_customers = spark.read.parquet("s3://hwe-fall-2024/ccook/bronze/customers/")
+bronze_customers = spark.read.parquet("s3a://hwe-fall-2024/ccook/bronze/customers/")
 
 print("\n--- Customers Loaded --- \n")
 
