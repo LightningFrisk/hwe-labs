@@ -57,7 +57,6 @@ print("\n\n--- Begin Program --- \n\n")
 # Modify the `df` dataframe defined in the lab to do the following:
 #    * split the value of the Kafka message on tab characters, assigning a field name to each element using the `as` keyword
 
-df.printSchema()
 df = df.selectExpr("split(value, '\t')[0] AS marketplace"
                ,"split(value, '\t')[1] AS customer_id"
                ,"split(value, '\t')[2] AS review_id"
@@ -74,10 +73,8 @@ df = df.selectExpr("split(value, '\t')[0] AS marketplace"
                ,"split(value, '\t')[13] AS review_body"
                ,"split(value, '\t')[14] AS purchase_date") \
                 .withColumn("review_timestamp", current_timestamp())
-            
+         
 #    * append a column to the data named `review_timestamp` which is set to the current_timestamp
-
-
 
 #    * write that data as Parquet files to S3 under `s3a://hwe-$CLASS/$HANDLE/bronze/reviews` using append mode and a checkpoint location of `/tmp/kafka-checkpoint`
    

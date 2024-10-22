@@ -155,9 +155,9 @@ reviews_timestamp.write.parquet(filepath, mode="overwrite")
 #There are no questions to answer about this data set right now, but you will use it in a later lab...
 print("\n\n--- Question 11---\n\n")
 
-reviews_data = spark.read.csv("resources/customers.tsv.gz", sep="\t", header=True)
+customer_data = spark.read.csv("resources/customers.tsv.gz", sep="\t", header=True)
 filepath2 = "s3a://hwe-fall-2024/ccook/bronze/customers"
-reviews_timestamp.write.parquet(filepath2, mode="overwrite")
+customer_data.write.parquet(filepath2, mode="overwrite")
 
 # try:
 #     response = s3.get_object(Bucket="hwe-fall-2024", Key="bronze/customers")

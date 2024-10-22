@@ -44,11 +44,11 @@ bronze_schema = StructType([
   ,StructField("helpful_votes", IntegerType(), nullable=False)
   ,StructField("total_votes", IntegerType(), nullable=False)
   ,StructField("vine", StringType(), nullable=False)
-  ,StructField("verfied_purchase", StringType(), nullable=False) #could be boolean
+  ,StructField("verified_purchase", StringType(), nullable=False) #could be boolean
   ,StructField("review_headline", StringType(), nullable=False)
   ,StructField("review_body", StringType(), nullable=False)
   ,StructField("purchase_date", StringType(), nullable=False) #could be date
-  ,StructField("review_timestamp", StringType(), nullable=False) #could be date
+  ,StructField("review_timestamp", TimestampType(), nullable=False) #could be date
   ])
 
 print("\n--- Schema Defined --- \n")
@@ -61,6 +61,8 @@ bronze_reviews = spark.readStream \
 .schema(bronze_schema) \
 .load("s3a://hwe-fall-2024/ccook/bronze/reviews/")
 
+bronze_reviews.printSchema()
+
 print("\n--- Reviews Loaded --- \n")
 
 bronze_reviews.createOrReplaceTempView("reviews")
@@ -71,6 +73,7 @@ print("\n--- Reviews SQL View Loaded --- \n")
 # 5. Register a virtual view on top of that dataframe
 
 bronze_customers = spark.read.parquet("s3a://hwe-fall-2024/ccook/bronze/customers/")
+bronze_customers.printSchema()
 
 print("\n--- Customers Loaded --- \n")
 
@@ -82,22 +85,31 @@ print("\n--- Customers SQL View Loaded --- \n")
 #    * joining the review and customer data on their common key of `customer_id`
 #    * applying a business validation rule to prevent unverified reviews in the bronze layer from being loaded into the silver layer
 
-# silver_data = None # I will need to do research to figure out where to even start here LOL
+
+# streaming_query = bronze_reviews.writeStream \
+#     .outputMode("append") \
+#     .format("console") \
+#     .option("checkpointLocation", "/tmp/silver-checkpoint") \
+#     .start()
+
+silver_data = spark.sql(
+    "SELECT r.marketplace, r.customer_id, r.product_id, r.product_parent, r.product_id, r.product_category, r.star_rating, r.helpful_votes, r.total_votes, r.vine, r.verified_purchase, r.review_headline, r.review_body, r.purchase_date, r.review_timestamp, c.customer_name, c.gender, c.date_of_birth, c.city, c.state FROM reviews r INNER JOIN customers c ON r.customer_id = c.customer_id WHERE r.verified_purchase = 'Y'"
+)
 
 print("\n--- Silver Data Processed --- \n")
 
 # # 7. Write that silver data to S3 under `s3a://hwe-$CLASS/$HANDLE/silver/reviews` using append mode, a checkpoint location of `/tmp/silver-checkpoint`, and a format of `parquet`
 
-# streaming_query = silver_data.writeStream \
-#     .outputMode("append") \
-#     .format("parquet") \
-#     .option("path", "s3a://hwe-fall-2024/ccook/silver/reviews") \
-#     .option("checkpointLocation", "/tmp/silver-checkpoint") \
-#     .start()
+streaming_query = silver_data.writeStream \
+    .outputMode("append") \
+    .format("parquet") \
+    .option("path", "s3a://hwe-fall-2024/ccook/silver/reviews") \
+    .option("checkpointLocation", "/tmp/silver-checkpoint") \
+    .start()
 
+streaming_query.awaitTermination()
 print("\n--- Write Complete ---\n")
 
-# streaming_query.start().awaitTermination()
-
 ## Stop the SparkSession
+print("\n--- End Program ---\n")
 spark.stop()
