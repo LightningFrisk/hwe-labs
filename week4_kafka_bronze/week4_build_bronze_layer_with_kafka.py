@@ -71,7 +71,7 @@ df = df.selectExpr("split(value, '\t')[0] AS marketplace"
                ,"split(value, '\t')[11] AS verified_purchase"
                ,"split(value, '\t')[12] AS review_headline"
                ,"split(value, '\t')[13] AS review_body"
-               ,"split(value, '\t')[14] AS purchase_date") \
+               ,"cast(split(value, '\t')[14] as string) AS purchase_date") \
                 .withColumn("review_timestamp", current_timestamp())
          
 #    * append a column to the data named `review_timestamp` which is set to the current_timestamp

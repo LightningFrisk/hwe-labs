@@ -93,7 +93,28 @@ print("\n--- Customers SQL View Loaded --- \n")
 #     .start()
 
 silver_data = spark.sql(
-    "SELECT r.marketplace, r.customer_id, r.product_id, r.product_parent, r.product_id, r.product_category, r.star_rating, r.helpful_votes, r.total_votes, r.vine, r.verified_purchase, r.review_headline, r.review_body, r.purchase_date, r.review_timestamp, c.customer_name, c.gender, c.date_of_birth, c.city, c.state FROM reviews r INNER JOIN customers c ON r.customer_id = c.customer_id WHERE r.verified_purchase = 'Y'"
+    "SELECT r.marketplace,\
+            r.customer_id,\
+            r.product_id,\
+            r.product_parent,\
+            r.product_category,\
+            r.star_rating,\
+            r.helpful_votes,\
+            r.total_votes, \
+            r.vine,\
+            r.verified_purchase,\
+            r.review_headline,\
+            r.review_body,\
+            r.purchase_date,\
+            r.review_timestamp,\
+            c.customer_name,\
+            c.gender,\
+            c.date_of_birth,\
+            c.city,\
+            c.state\
+            FROM reviews r \
+            INNER JOIN customers c ON r.customer_id = c.customer_id \
+            WHERE r.verified_purchase = 'Y'"
 )
 
 print("\n--- Silver Data Processed --- \n")
