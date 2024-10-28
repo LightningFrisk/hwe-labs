@@ -74,7 +74,7 @@ write_gold_query = aggregated_data.writeStream \
     .option("checkpointLocation", "/tmp/gold-checkpoint") \
     .start()
 
-write_gold_query.start().awaitTermination()
+write_gold_query.awaitTermination()
 
 ## Stop the SparkSession
 spark.stop()
