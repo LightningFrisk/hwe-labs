@@ -36,6 +36,7 @@ print("\n--- Begin Program --- \n")
 bronze_schema = StructType([
    StructField("marketplace", StringType(), nullable=False)
   ,StructField("customer_id", StringType(), nullable=False) #could be int
+  ,StructField("review_id", StringType(), nullable=False) #could be int
   ,StructField("product_id", StringType(), nullable=False) #could be int
   ,StructField("product_parent", StringType(), nullable=False)
   ,StructField("product_title", StringType(), nullable=False)
@@ -92,11 +93,14 @@ print("\n--- Customers SQL View Loaded --- \n")
 #     .option("checkpointLocation", "/tmp/silver-checkpoint") \
 #     .start()
 
+
 silver_data = spark.sql(
     "SELECT r.marketplace,\
             r.customer_id,\
+            r.review_id,\
             r.product_id,\
             r.product_parent,\
+            r.product_title,\
             r.product_category,\
             r.star_rating,\
             r.helpful_votes,\
@@ -128,8 +132,10 @@ streaming_query = silver_data.writeStream \
     .option("checkpointLocation", "/tmp/silver-checkpoint") \
     .start()
 
+print("\n--- Write in Progress ---\n")
+
 streaming_query.awaitTermination()
-print("\n--- Write Complete ---\n")
+
 
 ## Stop the SparkSession
 print("\n--- End Program ---\n")
