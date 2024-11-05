@@ -65,9 +65,11 @@ watermarked_data = silver_data.withWatermark("review_timestamp", "10 seconds")
 
 #Define an aggregated dataframe using `groupBy` functionality to summarize that data over any dimensions you may find interesting
 
-#Whats the most popluar product among men from Missouri?
+#Whats the most popluar product among men from the Lower Midwest?
+li=["MO","IL","KS","IA", "NE",]
+
 aggregated_data = (
-    watermarked_data.where(watermarked_data.state == "MO")
+    watermarked_data.where(watermarked_data.state.isin(li))
     .where(watermarked_data.gender == "M")
     .groupBy("gender","state","product_title", "review_timestamp")
     .agg(count("*").alias("total"))
